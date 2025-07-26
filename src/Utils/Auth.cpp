@@ -55,8 +55,9 @@ std::string Utils::Auth::callback(std::string res) {
     json data = json::parse(res);
 
     if (data.contains("refreshToken")) {
+      Config &config = Config::getInstance();
       setToken(data["refreshToken"]);
-      Config::user = data["user"];
+      config.user = data["user"];
       return "";
     }
 

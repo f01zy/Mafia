@@ -8,8 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(SOURCE
     ./src/main.cpp
-    ./src/Config/Config.cpp
     ./src/Network/Http.cpp
+    ./src/Network/Socket.cpp
     ./src/Game/Game.cpp
     ./src/Scenes/Menu.cpp
     ./src/Scenes/Rooms.cpp
@@ -17,7 +17,8 @@ set(SOURCE
     ./src/Scenes/Login.cpp
     ./src/Scenes/Register.cpp
     ./src/UI/Menu.cpp
-    ./src/Utils/Auth.cpp)
+    ./src/Utils/Auth.cpp
+    ./src/Utils/Core.cpp)
 set(ASSETS "${CMAKE_SOURCE_DIR}/assets")
 
 add_compile_definitions(ASSETS="${ASSETS}")
