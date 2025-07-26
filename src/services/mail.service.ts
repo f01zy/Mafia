@@ -22,7 +22,7 @@ export class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: `Activation account on Mafia.`,
+        subject: `Activation account on Mafia`,
         text: "",
         html:
           `
@@ -33,7 +33,7 @@ export class MailService {
           `
       })
     } catch (err) {
-      throw ApiError.BadRequest("Cannot send email.")
+      throw ApiError.BadRequest("Cannot send email")
     }
   }
 }

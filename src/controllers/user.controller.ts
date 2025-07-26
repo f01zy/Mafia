@@ -34,8 +34,8 @@ export class UserController {
         return next(ApiError.BadRequest(errors.array()[0].msg, errors.array()))
       }
 
-      const { email, password } = req.body
-      const user = await userService.login(email, password)
+      const { username, password } = req.body
+      const user = await userService.login(username, password)
 
       res.json(user)
     } catch (e) {

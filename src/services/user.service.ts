@@ -12,12 +12,12 @@ export class UserService {
   public async register(username: string, email: string, password: string) {
     const candidateEmail = await prisma.user.findFirst({ where: { email } })
     if (candidateEmail) {
-      throw ApiError.BadRequest("The user with this email already exists.")
+      throw ApiError.BadRequest("The user with this email already exists")
     }
 
     const candidateUsername = await prisma.user.findFirst({ where: { username } })
     if (candidateUsername) {
-      throw ApiError.BadRequest("The user with this username already exists.")
+      throw ApiError.BadRequest("The user with this username already exists")
     }
 
     const hashPassword = await bcrypt.hash(password, 3)
@@ -35,15 +35,15 @@ export class UserService {
     }
   }
 
-  public async login(email: string, password: string) {
-    const user = await prisma.user.findFirst({ where: { email } })
+  public async login(username: string, password: string) {
+    const user = await prisma.user.findFirst({ where: { username } })
     if (!user) {
-      throw ApiError.BadRequest("The user with this email was not found.")
+      throw ApiError.BadRequest("The user with this username was not found")
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password)
     if (!isPasswordCorrect) {
-      throw ApiError.BadRequest("Incorrect password.")
+      throw ApiError.BadRequest("Incorrect password")
     }
 
     const tokens = await tokenService.generateTokens(user.id)
@@ -63,7 +63,7 @@ export class UserService {
   public async activate(activationCode: string) {
     const user = await prisma.user.findFirst({ where: { activationCode } })
     if (!user) {
-      throw ApiError.BadRequest("Non-direct activation code.")
+      throw ApiError.BadRequest("Non-direct activation code")
     }
 
     user.isActivated = true

@@ -61,7 +61,7 @@ export class TokenService {
 
     const user = await prisma.user.findUnique({ where: { id: userData.id } })
     if (!user) {
-      throw ApiError.BadRequest("Invalid token.")
+      throw ApiError.BadRequest("Invalid token")
     }
 
     return user
