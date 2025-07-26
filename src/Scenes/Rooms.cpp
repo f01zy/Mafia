@@ -34,16 +34,23 @@ Types::Scene Scenes::Rooms() {
     }
     return element | borderEmpty;
   };
-  bool isConnectButtonCalled = false;
-  auto connectButton =
-      Button("Connect", [&] { isConnectButtonCalled = true; }, buttonOption);
+  auto connectButton = Button("Connect", [&] { screen.Exit(); }, buttonOption);
+  bool isCreateRoomButtonCalled = false;
+  auto createRoomButton = Button(
+      "Create room",
+      [&] {
+        isCreateRoomButtonCalled = true;
+        screen.Exit();
+      },
+      buttonOption);
 
   int selected = 0;
   Component dropdown = Dropdown(&rooms, &selected);
 
-  auto container = Container::Vertical({dropdown, connectButton});
+  auto container =
+      Container::Vertical({dropdown, connectButton, createRoomButton});
   auto component = CatchEvent(container, [&](Event event) {
-    if (event == Event::Return || isConnectButtonCalled) {
+    if (event == Event::Escape) {
       screen.Exit();
       return 1;
     }
@@ -54,13 +61,19 @@ Types::Scene Scenes::Rooms() {
   auto renderer = Renderer(component, [&] {
     return center(vbox({
                       text("Rooms") | bold,
-                      filler() | size(HEIGHT, EQUAL, 1),
+                      separator(),
                       dropdown->Render(),
+                      separator(),
                       connectButton->Render(),
+                      createRoomButton->Render(),
                   }) |
                   border | size(WIDTH, GREATER_THAN, 30));
   });
   screen.Loop(renderer);
+
+  if (isCreateRoomButtonCalled) {
+    return Types::Scene::CreateRoom;
+  }
 
   return Types::Scene::Menu;
 }

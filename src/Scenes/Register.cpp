@@ -35,16 +35,22 @@ Types::Scene Scenes::Register(std::string title) {
     }
     return element | borderEmpty;
   };
+  auto registerButton =
+      Button("Register", [&] { screen.Exit(); }, buttonOption);
   bool isLoginButtonCalled = false;
   auto loginButton = Button(
-      "Already registered? - login", [&] { isLoginButtonCalled = true; },
+      "Already registered? - login",
+      [&] {
+        isLoginButtonCalled = true;
+        screen.Exit();
+      },
       buttonOption);
 
   auto container =
       Container::Vertical({usernameInput, emailInput, passwordInput,
-                           confirmPasswordInput, loginButton});
+                           confirmPasswordInput, registerButton, loginButton});
   auto component = CatchEvent(container, [&](Event event) {
-    if (event == Event::Return || isLoginButtonCalled) {
+    if (event == Event::Escape) {
       screen.Exit();
       return 1;
     }
@@ -54,20 +60,23 @@ Types::Scene Scenes::Register(std::string title) {
 
   while (1) {
     auto renderer = Renderer(component, [&] {
-      return center(vbox({
-                        text(title) | bold,
-                        filler() | size(HEIGHT, EQUAL, 1),
-                        hbox(text("Username         : "),
-                             usernameInput->Render() | size(WIDTH, EQUAL, 30)),
-                        hbox(text("Email            : "),
-                             emailInput->Render() | size(WIDTH, EQUAL, 30)),
-                        hbox(text("Password         : "),
-                             passwordInput->Render() | size(WIDTH, EQUAL, 30)),
-                        hbox(text("Confirm password : "),
-                             confirmPasswordInput | size(WIDTH, EQUAL, 30)),
-                        loginButton->Render(),
-                    }) |
-                    border);
+      return center(
+          vbox({
+              text(title) | bold,
+              separator(),
+              hbox(text("Username        : "),
+                   usernameInput->Render() | size(WIDTH, EQUAL, 30)),
+              hbox(text("Email           : "),
+                   emailInput->Render() | size(WIDTH, EQUAL, 30)),
+              hbox(text("Password        : "),
+                   passwordInput->Render() | size(WIDTH, EQUAL, 30)),
+              hbox(text("Confirm password: "),
+                   confirmPasswordInput->Render() | size(WIDTH, EQUAL, 30)),
+              separator(),
+              registerButton->Render(),
+              loginButton->Render(),
+          }) |
+          border);
     });
     screen.Loop(renderer);
 

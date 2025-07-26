@@ -16,6 +16,10 @@ void Game::run() {
       scene = Scenes::Rooms();
       break;
 
+    case Types::Scene::CreateRoom:
+      scene = Scenes::CreateRoom();
+      break;
+
     case Types::Scene::Login:
       scene = Scenes::Login();
       break;

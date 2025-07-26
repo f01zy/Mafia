@@ -30,15 +30,20 @@ Types::Scene Scenes::Login(std::string title) {
     }
     return element | borderEmpty;
   };
+  auto loginButton = Button("Login", [&] { screen.Exit(); }, buttonOption);
   bool isRegisterButtonCalled = false;
   auto registerButton = Button(
-      "Don't have a accont? - Register", [&] { isRegisterButtonCalled = true; },
+      "Don't have a accont? - Register",
+      [&] {
+        isRegisterButtonCalled = true;
+        screen.Exit();
+      },
       buttonOption);
 
-  auto container =
-      Container::Vertical({usernameInput, passwordInput, registerButton});
+  auto container = Container::Vertical(
+      {usernameInput, passwordInput, loginButton, registerButton});
   auto component = CatchEvent(container, [&](Event event) {
-    if (event == Event::Return || isRegisterButtonCalled) {
+    if (event == Event::Escape) {
       screen.Exit();
       return 1;
     }
@@ -50,11 +55,13 @@ Types::Scene Scenes::Login(std::string title) {
     auto renderer = Renderer(component, [&] {
       return center(vbox({
                         text(title) | bold,
-                        filler() | size(HEIGHT, EQUAL, 1),
-                        hbox(text("Email    : "),
+                        separator(),
+                        hbox(text("Email   : "),
                              usernameInput->Render() | size(WIDTH, EQUAL, 30)),
-                        hbox(text("Password : "),
+                        hbox(text("Password: "),
                              passwordInput->Render() | size(WIDTH, EQUAL, 30)),
+                        separator(),
+                        loginButton->Render(),
                         registerButton->Render(),
                     }) |
                     border);

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(
   Mafia
-  VERSION 0.0.1
-  DESCRIPTION "Mafia game in C++")
+  VERSION 0.0.0
+  DESCRIPTION "Online mafia game in C++")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -13,6 +13,7 @@ set(SOURCE
     ./src/Game/Game.cpp
     ./src/Scenes/Menu.cpp
     ./src/Scenes/Rooms.cpp
+    ./src/Scenes/CreateRoom.cpp
     ./src/Scenes/Login.cpp
     ./src/Scenes/Register.cpp
     ./src/UI/Menu.cpp
