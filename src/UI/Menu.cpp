@@ -21,10 +21,9 @@ int UI::Menu::draw() {
   });
 
   auto renderer = Renderer(component, [&] {
-    return center(
-        vcenter(vbox(text(title) | bold, filler() | size(HEIGHT, EQUAL, 1),
-                     component->Render()) |
-                border | size(WIDTH, GREATER_THAN, 30)));
+    return center(vbox(text(title) | bold, filler() | size(HEIGHT, EQUAL, 1),
+                       component->Render()) |
+                  border | size(WIDTH, GREATER_THAN, 30));
   });
   screen.Loop(renderer);
 

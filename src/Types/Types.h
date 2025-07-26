@@ -1,3 +1,3 @@
 namespace Types {
-enum class Scene { Lobby, Rooms, Login, Register, Exit };
+enum class Scene { Menu, Rooms, Login, Register, Exit };
 }

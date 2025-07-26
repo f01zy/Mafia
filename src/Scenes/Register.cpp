@@ -40,12 +40,6 @@ Types::Scene Scenes::Register(std::string title) {
       "Already registered? - login", [&] { isLoginButtonCalled = true; },
       buttonOption);
 
-  auto renderInput = [](Component input) {
-    return input->Render() | size(WIDTH, EQUAL, 30);
-  };
-
-  auto renderButton = [](Component button) { return button->Render(); };
-
   auto container =
       Container::Vertical({usernameInput, emailInput, passwordInput,
                            confirmPasswordInput, loginButton});
@@ -60,18 +54,20 @@ Types::Scene Scenes::Register(std::string title) {
 
   while (1) {
     auto renderer = Renderer(component, [&] {
-      return center(vcenter(
-          vbox({
-              text(title) | bold,
-              filler() | size(HEIGHT, EQUAL, 1),
-              hbox(text("Username         : "), renderInput(usernameInput)),
-              hbox(text("Email            : "), renderInput(emailInput)),
-              hbox(text("Password         : "), renderInput(passwordInput)),
-              hbox(text("Confirm password : "),
-                   renderInput(confirmPasswordInput)),
-              renderButton(loginButton),
-          }) |
-          border));
+      return center(vbox({
+                        text(title) | bold,
+                        filler() | size(HEIGHT, EQUAL, 1),
+                        hbox(text("Username         : "),
+                             usernameInput->Render() | size(WIDTH, EQUAL, 30)),
+                        hbox(text("Email            : "),
+                             emailInput->Render() | size(WIDTH, EQUAL, 30)),
+                        hbox(text("Password         : "),
+                             passwordInput->Render() | size(WIDTH, EQUAL, 30)),
+                        hbox(text("Confirm password : "),
+                             confirmPasswordInput | size(WIDTH, EQUAL, 30)),
+                        loginButton->Render(),
+                    }) |
+                    border);
     });
     screen.Loop(renderer);
 
@@ -94,5 +90,5 @@ Types::Scene Scenes::Register(std::string title) {
     }
   }
 
-  return Types::Scene::Lobby;
+  return Types::Scene::Menu;
 }

@@ -4,12 +4,16 @@
 
 void Game::run() {
   bool isAuth = Utils::Auth::checkAuth();
-  Types::Scene scene = isAuth ? Types::Scene::Lobby : Types::Scene::Login;
+  Types::Scene scene = isAuth ? Types::Scene::Menu : Types::Scene::Login;
 
   while (scene != Types::Scene::Exit) {
     switch (scene) {
-    case Types::Scene::Lobby:
-      scene = Scenes::Lobby();
+    case Types::Scene::Menu:
+      scene = Scenes::Menu();
+      break;
+
+    case Types::Scene::Rooms:
+      scene = Scenes::Rooms();
       break;
 
     case Types::Scene::Login:

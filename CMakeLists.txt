@@ -12,6 +12,7 @@ set(SOURCE
     ./src/Network/Http.cpp
     ./src/Game/Game.cpp
     ./src/Scenes/Menu.cpp
+    ./src/Scenes/Rooms.cpp
     ./src/Scenes/Login.cpp
     ./src/Scenes/Register.cpp
     ./src/UI/Menu.cpp

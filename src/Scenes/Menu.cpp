@@ -4,7 +4,7 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
 
-Types::Scene Scenes::Lobby() {
+Types::Scene Scenes::Menu() {
   std::vector<std::string> options = {"Rooms", "Logout", "Exit"};
   UI::Menu menu(options, "Lobby");
   int choice = menu.draw();

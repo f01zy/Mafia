@@ -35,12 +35,6 @@ Types::Scene Scenes::Login(std::string title) {
       "Don't have a accont? - Register", [&] { isRegisterButtonCalled = true; },
       buttonOption);
 
-  auto renderInput = [](Component input) {
-    return input->Render() | size(WIDTH, EQUAL, 30);
-  };
-
-  auto renderButton = [](Component button) { return button->Render(); };
-
   auto container =
       Container::Vertical({usernameInput, passwordInput, registerButton});
   auto component = CatchEvent(container, [&](Event event) {
@@ -54,15 +48,16 @@ Types::Scene Scenes::Login(std::string title) {
 
   while (1) {
     auto renderer = Renderer(component, [&] {
-      return center(
-          vcenter(vbox({
-                      text(title) | bold,
-                      filler() | size(HEIGHT, EQUAL, 1),
-                      hbox(text("Email    : "), renderInput(usernameInput)),
-                      hbox(text("Password : "), renderInput(passwordInput)),
-                      renderButton(registerButton),
-                  }) |
-                  border));
+      return center(vbox({
+                        text(title) | bold,
+                        filler() | size(HEIGHT, EQUAL, 1),
+                        hbox(text("Email    : "),
+                             usernameInput->Render() | size(WIDTH, EQUAL, 30)),
+                        hbox(text("Password : "),
+                             passwordInput->Render() | size(WIDTH, EQUAL, 30)),
+                        registerButton->Render(),
+                    }) |
+                    border);
     });
     screen.Loop(renderer);
 
@@ -80,5 +75,5 @@ Types::Scene Scenes::Login(std::string title) {
     }
   }
 
-  return Types::Scene::Lobby;
+  return Types::Scene::Menu;
 }
