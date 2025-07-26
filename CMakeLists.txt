@@ -6,8 +6,16 @@ project(
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
-set(SOURCE ./src/main.cpp ./src/Network/Http.cpp ./src/Game/Game.cpp
-           ./src/Scenes/Menu.cpp ./src/UI/Menu.cpp)
+set(SOURCE
+    ./src/main.cpp
+    ./src/Config/Config.cpp
+    ./src/Network/Http.cpp
+    ./src/Game/Game.cpp
+    ./src/Scenes/Menu.cpp
+    ./src/Scenes/Login.cpp
+    ./src/Scenes/Register.cpp
+    ./src/UI/Menu.cpp
+    ./src/Utils/Auth.cpp)
 set(ASSETS "${CMAKE_SOURCE_DIR}/assets")
 
 add_compile_definitions(ASSETS="${ASSETS}")

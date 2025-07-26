@@ -1,8 +1,10 @@
 #include "Game.h"
 #include "../Scenes/Scenes.h"
+#include "../Utils/Auth.h"
 
 void Game::run() {
-  Types::Scene scene = Types::Scene::Lobby;
+  bool isAuth = Utils::Auth::checkAuth();
+  Types::Scene scene = isAuth ? Types::Scene::Lobby : Types::Scene::Login;
 
   while (scene != Types::Scene::Exit) {
     switch (scene) {
@@ -16,9 +18,6 @@ void Game::run() {
 
     case Types::Scene::Register:
       scene = Scenes::Register();
-      break;
-
-    case Types::Scene::Exit:
       break;
     }
   }

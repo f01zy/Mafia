@@ -5,18 +5,17 @@
 #include <ftxui/screen/screen.hpp>
 
 Types::Scene Scenes::Lobby() {
-  bool isAuth = Utils::Auth::checkAuth();
-
-  std::vector<std::string> options = {"Rooms", "Exit"};
+  std::vector<std::string> options = {"Rooms", "Logout", "Exit"};
   UI::Menu menu(options, "Lobby");
   int choice = menu.draw();
 
   switch (choice) {
   case 0:
-    return Types::Scene::Lobby;
+    return Types::Scene::Rooms;
 
   case 1:
-    return Types::Scene::Exit;
+    Utils::Auth::logout();
+    return Types::Scene::Login;
   }
 
   return Types::Scene::Exit;
