@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Types/Types.h"
 #include <string>
 

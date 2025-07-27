@@ -19,7 +19,8 @@ set(SOURCE
     ./src/Scenes/Register.cpp
     ./src/UI/Menu.cpp
     ./src/Utils/Auth.cpp
-    ./src/Utils/Core.cpp)
+    ./src/Utils/Core.cpp
+    ./src/Utils/Json.cpp)
 set(ASSETS "${CMAKE_SOURCE_DIR}/assets")
 
 add_compile_definitions(ASSETS="${ASSETS}")

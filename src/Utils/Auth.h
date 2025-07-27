@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 namespace Utils::Auth {

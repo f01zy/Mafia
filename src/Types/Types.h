@@ -1,3 +1,22 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
 namespace Types {
 enum class Scene { Menu, Rooms, CreateRoom, Room, Login, Register, Exit };
+
+struct Room {
+  std::string owner;
+  std::string name;
+  int maxPlayers;
+  std::vector<std::string> players;
+};
+
+struct User {
+  int id;
+  std::string username;
+  std::string email;
+  bool isActivated;
+};
 } // namespace Types

@@ -1,6 +1,7 @@
 #include "Auth.h"
 #include "../Config/Config.h"
 #include "../Network/Http.h"
+#include "Json.h"
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -12,10 +13,10 @@ bool Utils::Auth::checkAuth() {
   std::string isAuth = refresh();
 
   if (isAuth.empty()) {
-    return true;
+    return 1;
   }
 
-  return false;
+  return 0;
 }
 
 std::string Utils::Auth::signIn(std::string username, std::string password) {
@@ -55,9 +56,12 @@ std::string Utils::Auth::callback(std::string res) {
     json data = json::parse(res);
 
     if (data.contains("refreshToken")) {
-      Config &config = Config::getInstance();
       setToken(data["refreshToken"]);
-      config.user = data["user"];
+
+      Config &config = Config::getInstance();
+      Types::User user = Utils::Json::jsonToUser(data["user"]);
+      config.setUser(user);
+
       return "";
     }
 

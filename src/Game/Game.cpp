@@ -4,9 +4,13 @@
 #include "../Utils/Auth.h"
 
 void Game::run() {
-  Socket &socket = Socket::getInstance();
   bool isAuth = Utils::Auth::checkAuth();
   Types::Scene scene = isAuth ? Types::Scene::Menu : Types::Scene::Login;
+
+  Socket &socket = Socket::getInstance();
+  if (isAuth) {
+    socket.auth();
+  }
 
   while (scene != Types::Scene::Exit) {
     switch (scene) {

@@ -1,3 +1,4 @@
+#include "../Network/Socket.h"
 #include "../Utils/Auth.h"
 #include "Scenes.h"
 #include "ftxui/component/component.hpp"
@@ -7,6 +8,7 @@
 Types::Scene Scenes::Register(std::string title) {
   using namespace ftxui;
 
+  Socket &socket = Socket::getInstance();
   auto screen = ScreenInteractive::Fullscreen();
 
   std::string username;
@@ -88,6 +90,7 @@ Types::Scene Scenes::Register(std::string title) {
     }
 
     else {
+      socket.auth();
       break;
     }
   }

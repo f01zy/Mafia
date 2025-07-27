@@ -38,36 +38,42 @@ Types::Scene Scenes::CreateRoom() {
     return element | borderEmpty;
   };
   auto createButton = Button("Create", [&] { screen.Exit(); }, buttonOption);
+  bool isBackButtonCalled = false;
+  auto backButton = Button(
+      "Back",
+      [&] {
+        isBackButtonCalled = true;
+        screen.Exit();
+      },
+      buttonOption);
 
-  auto container =
-      Container::Vertical({nameInput, maxPlayersSlider, createButton});
-  auto component = CatchEvent(container, [&](Event event) {
-    if (event == Event::Escape) {
-      screen.Exit();
-      return 1;
-    }
-
-    return 0;
-  });
+  auto component = Container::Vertical(
+      {nameInput, maxPlayersSlider, createButton, backButton});
 
   std::string title = "Create room";
 
   auto renderer = Renderer(component, [&] {
-    return center(vbox({
-                      text(title) | bold,
-                      separator(),
-                      hbox(text("Name   : "),
-                           nameInput->Render() | size(WIDTH, EQUAL, 30)),
-                      hbox(maxPlayersSlider->Render(),
-                           text(" " + std::to_string(maxPlayers))),
-                      separator(),
-                      createButton->Render(),
-                  }) |
-                  border);
+    return center(
+        vbox({
+            text(title) | bold,
+            separator(),
+            hbox(text("Name   : "),
+                 nameInput->Render() | size(WIDTH, EQUAL, 30)),
+            hbox(maxPlayersSlider->Render(), filler() | size(WIDTH, EQUAL, 1),
+                 text(std::to_string(maxPlayers))),
+            separator(),
+            createButton->Render(),
+            backButton->Render(),
+        }) |
+        border);
   });
 
   while (1) {
     screen.Loop(renderer);
+
+    if (isBackButtonCalled) {
+      return Types::Scene::Rooms;
+    }
 
     if (name.size() < 4 || name.size() > 20) {
       title = "Name lenght must be more than 4 and not exceed 20";
@@ -79,12 +85,11 @@ Types::Scene Scenes::CreateRoom() {
   }
 
   json data;
-  data["owner"] = config.user["username"];
   data["name"] = name;
   data["maxPlayers"] = maxPlayers;
-  socket.emit("createRoom", data.dump());
 
-  while (config.room.name.empty()) {
+  socket.emit("createRoom", data.dump());
+  while (config.getIsLoading()) {
     Utils::Core::sleep(0.5);
   }
 
