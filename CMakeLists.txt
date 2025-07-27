@@ -14,6 +14,7 @@ set(SOURCE
     ./src/Scenes/Menu.cpp
     ./src/Scenes/Rooms.cpp
     ./src/Scenes/CreateRoom.cpp
+    ./src/Scenes/Room.cpp
     ./src/Scenes/Login.cpp
     ./src/Scenes/Register.cpp
     ./src/UI/Menu.cpp

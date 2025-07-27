@@ -1,23 +1,14 @@
 #include "../Config/Config.h"
-#include "../Network/Socket.h"
-#include "../Utils/Core.h"
 #include "Scenes.h"
 #include "ftxui/component/component.hpp"
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <string>
 
-Types::Scene Scenes::Rooms() {
+Types::Scene Scenes::Room() {
   using namespace ftxui;
 
   Config &config = Config::getInstance();
-  Socket &socket = Socket::getInstance();
-  socket.emit("getRooms");
-
-  while (config.rooms.empty()) {
-    Utils::Core::sleep(0.5);
-  }
-
   auto screen = ScreenInteractive::Fullscreen();
 
   auto buttonOption = ButtonOption::Simple();
@@ -32,39 +23,29 @@ Types::Scene Scenes::Rooms() {
     }
     return element | borderEmpty;
   };
-  auto connectButton = Button("Connect", [&] { screen.Exit(); }, buttonOption);
-  bool isCreateRoomButtonCalled = false;
-  auto createRoomButton = Button(
-      "Create room",
+  auto disconnectButton = Button(
+      "Disconnect",
       [&] {
-        isCreateRoomButtonCalled = true;
+        config.room.name.clear();
+        config.room.maxPlayers = 0;
+        config.room.owner.clear();
+        config.room.players.clear();
         screen.Exit();
       },
       buttonOption);
 
-  int selected = 0;
-  Component dropdown = Dropdown(&config.rooms, &selected);
-
-  auto component =
-      Container::Vertical({dropdown, connectButton, createRoomButton});
-
+  auto component = Container::Vertical({disconnectButton});
   auto renderer = Renderer(component, [&] {
     return center(vbox({
-                      text("Rooms") | bold,
+                      text(config.room.name) | bold,
+                      text(std::to_string(config.room.players.size()) + "/" +
+                           std::to_string(config.room.maxPlayers) + " players"),
                       separator(),
-                      dropdown->Render(),
-                      separator(),
-                      connectButton->Render(),
-                      createRoomButton->Render(),
+                      disconnectButton->Render(),
                   }) |
                   border | size(WIDTH, GREATER_THAN, 30));
   });
   screen.Loop(renderer);
-  config.rooms.clear();
-
-  if (isCreateRoomButtonCalled) {
-    return Types::Scene::CreateRoom;
-  }
 
   return Types::Scene::Menu;
 }

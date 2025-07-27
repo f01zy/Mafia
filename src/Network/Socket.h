@@ -10,7 +10,7 @@ public:
   ~Socket();
 
   static Socket &getInstance();
-  void send(std::string event, std::string data);
+  void emit(std::string event, std::string data = "");
   void on(std::string event, std::function<void(sio::event &)> callback);
 
 private:

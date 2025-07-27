@@ -46,38 +46,31 @@ Types::Scene Scenes::Register(std::string title) {
       },
       buttonOption);
 
-  auto container =
+  auto component =
       Container::Vertical({usernameInput, emailInput, passwordInput,
                            confirmPasswordInput, registerButton, loginButton});
-  auto component = CatchEvent(container, [&](Event event) {
-    if (event == Event::Escape) {
-      screen.Exit();
-      return 1;
-    }
 
-    return 0;
+  auto renderer = Renderer(component, [&] {
+    return center(
+        vbox({
+            text(title) | bold,
+            separator(),
+            hbox(text("Username        : "),
+                 usernameInput->Render() | size(WIDTH, EQUAL, 30)),
+            hbox(text("Email           : "),
+                 emailInput->Render() | size(WIDTH, EQUAL, 30)),
+            hbox(text("Password        : "),
+                 passwordInput->Render() | size(WIDTH, EQUAL, 30)),
+            hbox(text("Confirm password: "),
+                 confirmPasswordInput->Render() | size(WIDTH, EQUAL, 30)),
+            separator(),
+            registerButton->Render(),
+            loginButton->Render(),
+        }) |
+        border);
   });
 
   while (1) {
-    auto renderer = Renderer(component, [&] {
-      return center(
-          vbox({
-              text(title) | bold,
-              separator(),
-              hbox(text("Username        : "),
-                   usernameInput->Render() | size(WIDTH, EQUAL, 30)),
-              hbox(text("Email           : "),
-                   emailInput->Render() | size(WIDTH, EQUAL, 30)),
-              hbox(text("Password        : "),
-                   passwordInput->Render() | size(WIDTH, EQUAL, 30)),
-              hbox(text("Confirm password: "),
-                   confirmPasswordInput->Render() | size(WIDTH, EQUAL, 30)),
-              separator(),
-              registerButton->Render(),
-              loginButton->Render(),
-          }) |
-          border);
-    });
     screen.Loop(renderer);
 
     if (password != confirmPassword) {
