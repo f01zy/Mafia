@@ -89,7 +89,7 @@ Types::Scene Scenes::CreateRoom() {
   data["maxPlayers"] = maxPlayers;
 
   socket.emit("createRoom", data.dump());
-  while (state.getIsLoading()) {
+  while (state.isLoading) {
     Utils::sleep(0.5);
   }
 

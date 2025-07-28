@@ -39,30 +39,38 @@ Types::Scene Scenes::Room() {
 
   Types::User &user = state.getUser();
   Types::Room &room = state.getRoom();
-  bool isOwner = user.username == room.owner;
 
-  Component component =
-      isOwner ? Container::Vertical({startButton, disconnectButton})
-              : Container::Vertical({disconnectButton});
+  while (1) {
+    state.isRoomUpdated = false;
+    bool isOwner = user.username == room.owner;
 
-  auto renderButtons = [&] {
-    if (isOwner) {
-      return vbox({startButton->Render(), disconnectButton->Render()});
+    Component component =
+        isOwner ? Container::Vertical({startButton, disconnectButton})
+                : Container::Vertical({disconnectButton});
+
+    auto renderButtons = [&] {
+      if (isOwner) {
+        return vbox({startButton->Render(), disconnectButton->Render()});
+      }
+      return disconnectButton->Render();
+    };
+
+    auto renderer = Renderer(component, [&] {
+      return center(vbox({
+                        text(room.name) | bold,
+                        text(std::to_string(room.players.size()) + "/" +
+                             std::to_string(room.maxPlayers) + " players"),
+                        separator(),
+                        renderButtons(),
+                    }) |
+                    border | size(WIDTH, GREATER_THAN, 30));
+    });
+    state.screen.Loop(renderer);
+
+    if (!state.isRoomUpdated) {
+      break;
     }
-    return disconnectButton->Render();
-  };
-
-  auto renderer = Renderer(component, [&] {
-    return center(vbox({
-                      text(room.name) | bold,
-                      text(std::to_string(room.players.size()) + "/" +
-                           std::to_string(room.maxPlayers) + " players"),
-                      separator(),
-                      renderButtons(),
-                  }) |
-                  border | size(WIDTH, GREATER_THAN, 30));
-  });
-  state.screen.Loop(renderer);
+  }
 
   return Types::Scene::Menu;
 }

@@ -14,7 +14,7 @@ Types::Scene Scenes::Rooms() {
   Socket &socket = Socket::getInstance();
 
   socket.emit("getRooms");
-  while (state.getIsLoading()) {
+  while (state.isLoading) {
     Utils::sleep(0.5);
   }
 
@@ -78,7 +78,7 @@ Types::Scene Scenes::Rooms() {
   }
 
   socket.emit("connectToRoom", rooms[selected]);
-  while (state.getIsLoading()) {
+  while (state.isLoading) {
     Utils::sleep(0.5);
   }
 

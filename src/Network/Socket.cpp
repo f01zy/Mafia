@@ -9,21 +9,23 @@ void updateRoom(sio::event event) {
   json data = json::parse(event.get_message()->get_string());
   Types::Room room = Utils::Json::jsonToRoom(data);
   state.setRoom(room);
-  state.setIsLoading(0);
+  state.isLoading = false;
+  state.isRoomUpdated = true;
+  state.screen.Exit();
 }
 
 void receiveRooms(sio::event event) {
   State &state = State::getInstance();
   json data = json::parse(event.get_message()->get_string());
   state.rooms = data["rooms"].get<std::vector<Types::Room>>();
-  state.setIsLoading(0);
+  state.isLoading = false;
 }
 
 void receiveDisconnectFromRoom(sio::event event) {
   State &state = State::getInstance();
   Types::Room room;
   state.setRoom(room);
-  state.setIsLoading(0);
+  state.isLoading = false;
 }
 
 Socket::Socket(std::string url) {
@@ -42,7 +44,7 @@ Socket::~Socket() {
 
 void Socket::emit(std::string event, std::string data) {
   State &state = State::getInstance();
-  state.setIsLoading(1);
+  state.isLoading = true;
   c.socket()->emit(event, data);
 }
 
