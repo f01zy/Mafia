@@ -40,7 +40,7 @@ export const loadIoListeners = (io: Server) => {
     }
   }
 
-  io.on("connection", (socket) => {
+  io.on("connection", (socket: Socket) => {
     socket.on("authenticate", (username: string) => {
       socket.data.username = username
       logger.info(`${username} connected`)
@@ -77,7 +77,11 @@ export const loadIoListeners = (io: Server) => {
       const username = socket.data.username
 
       if (!room) {
-        return
+        return socket.emit("error", "The room not found")
+      }
+
+      else if (room.players.length == room.maxPlayers) {
+        return socket.emit("error", "The room is full")
       }
       room.players.push(username)
 
@@ -89,6 +93,8 @@ export const loadIoListeners = (io: Server) => {
 
     socket.on("disconnect", () => {
       disconnectFromRoom(socket)
+      const username = socket.data.username
+      logger.info(`${username} disconnected`)
     })
   })
 }

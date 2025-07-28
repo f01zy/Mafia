@@ -1,11 +1,13 @@
 import winston from "winston"
+import { formatTimestamp } from "./formatTimestamp.ts"
 
 export const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message }) => {
-      return `[${level.toUpperCase()}][${timestamp}] ${message}`
+      const time = formatTimestamp(timestamp as string)
+      return `[${level.toUpperCase()}][${time}] ${message}`
     })
   ),
   transports: [
