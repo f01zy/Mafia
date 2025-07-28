@@ -1,6 +1,6 @@
-#include "../Config/Config.h"
+#include "../Config/State.h"
 #include "../Network/Socket.h"
-#include "../Utils/Core.h"
+#include "../Utils/Utils.h"
 #include "Scenes.h"
 #include "ftxui/component/component.hpp"
 #include <ftxui/component/component_options.hpp>
@@ -13,9 +13,8 @@ using json = nlohmann::json;
 Types::Scene Scenes::CreateRoom() {
   using namespace ftxui;
 
+  State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
-  Config &config = Config::getInstance();
-  auto screen = ScreenInteractive::Fullscreen();
 
   std::string name;
   InputOption inputOption;
@@ -37,13 +36,14 @@ Types::Scene Scenes::CreateRoom() {
     }
     return element | borderEmpty;
   };
-  auto createButton = Button("Create", [&] { screen.Exit(); }, buttonOption);
+  auto createButton =
+      Button("Create", [&] { state.screen.Exit(); }, buttonOption);
   bool isBackButtonCalled = false;
   auto backButton = Button(
       "Back",
       [&] {
         isBackButtonCalled = true;
-        screen.Exit();
+        state.screen.Exit();
       },
       buttonOption);
 
@@ -69,7 +69,7 @@ Types::Scene Scenes::CreateRoom() {
   });
 
   while (1) {
-    screen.Loop(renderer);
+    state.screen.Loop(renderer);
 
     if (isBackButtonCalled) {
       return Types::Scene::Rooms;
@@ -89,8 +89,8 @@ Types::Scene Scenes::CreateRoom() {
   data["maxPlayers"] = maxPlayers;
 
   socket.emit("createRoom", data.dump());
-  while (config.getIsLoading()) {
-    Utils::Core::sleep(0.5);
+  while (state.getIsLoading()) {
+    Utils::sleep(0.5);
   }
 
   return Types::Scene::Room;

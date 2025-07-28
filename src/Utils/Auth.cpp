@@ -1,5 +1,5 @@
 #include "Auth.h"
-#include "../Config/Config.h"
+#include "../Config/State.h"
 #include "../Network/Http.h"
 #include "Json.h"
 #include <fstream>
@@ -58,9 +58,9 @@ std::string Utils::Auth::callback(std::string res) {
     if (data.contains("refreshToken")) {
       setToken(data["refreshToken"]);
 
-      Config &config = Config::getInstance();
+      State &state = State::getInstance();
       Types::User user = Utils::Json::jsonToUser(data["user"]);
-      config.setUser(user);
+      state.setUser(user);
 
       return "";
     }

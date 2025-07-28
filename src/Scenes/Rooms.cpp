@@ -1,6 +1,6 @@
-#include "../Config/Config.h"
+#include "../Config/State.h"
 #include "../Network/Socket.h"
-#include "../Utils/Core.h"
+#include "../Utils/Utils.h"
 #include "Scenes.h"
 #include "ftxui/component/component.hpp"
 #include <ftxui/component/screen_interactive.hpp>
@@ -10,15 +10,13 @@
 Types::Scene Scenes::Rooms() {
   using namespace ftxui;
 
-  Config &config = Config::getInstance();
+  State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
 
   socket.emit("getRooms");
-  while (config.getIsLoading()) {
-    Utils::Core::sleep(0.5);
+  while (state.getIsLoading()) {
+    Utils::sleep(0.5);
   }
-
-  auto screen = ScreenInteractive::Fullscreen();
 
   auto buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
@@ -32,13 +30,14 @@ Types::Scene Scenes::Rooms() {
     }
     return element | borderEmpty;
   };
-  auto connectButton = Button("Connect", [&] { screen.Exit(); }, buttonOption);
+  auto connectButton =
+      Button("Connect", [&] { state.screen.Exit(); }, buttonOption);
   bool isCreateRoomButtonCalled = false;
   auto createRoomButton = Button(
       "Create room",
       [&] {
         isCreateRoomButtonCalled = true;
-        screen.Exit();
+        state.screen.Exit();
       },
       buttonOption);
   bool isBackButtonCalled = false;
@@ -46,12 +45,12 @@ Types::Scene Scenes::Rooms() {
       "Back",
       [&] {
         isBackButtonCalled = true;
-        screen.Exit();
+        state.screen.Exit();
       },
       buttonOption);
 
   std::vector<std::string> rooms;
-  for (Types::Room room : config.rooms) {
+  for (Types::Room room : state.rooms) {
     rooms.push_back(room.name);
   }
 
@@ -67,8 +66,8 @@ Types::Scene Scenes::Rooms() {
                         createRoomButton->Render(), backButton->Render()}) |
                   border | size(WIDTH, GREATER_THAN, 30));
   });
-  screen.Loop(renderer);
-  config.rooms.clear();
+  state.screen.Loop(renderer);
+  state.rooms.clear();
 
   if (isBackButtonCalled) {
     return Types::Scene::Menu;
@@ -79,8 +78,8 @@ Types::Scene Scenes::Rooms() {
   }
 
   socket.emit("connectToRoom", rooms[selected]);
-  while (config.getIsLoading()) {
-    Utils::Core::sleep(0.5);
+  while (state.getIsLoading()) {
+    Utils::sleep(0.5);
   }
 
   return Types::Scene::Room;

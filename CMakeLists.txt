@@ -19,7 +19,7 @@ set(SOURCE
     ./src/Scenes/Register.cpp
     ./src/UI/Menu.cpp
     ./src/Utils/Auth.cpp
-    ./src/Utils/Core.cpp
+    ./src/Utils/Utils.cpp
     ./src/Utils/Json.cpp)
 set(ASSETS "${CMAKE_SOURCE_DIR}/assets")
 

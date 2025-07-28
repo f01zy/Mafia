@@ -1,3 +1,4 @@
+#include "../Config/State.h"
 #include "../Network/Socket.h"
 #include "../Utils/Auth.h"
 #include "Scenes.h"
@@ -5,11 +6,11 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 
-Types::Scene Scenes::Login(std::string title) {
+Types::Scene Scenes::Login() {
   using namespace ftxui;
 
+  State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
-  auto screen = ScreenInteractive::Fullscreen();
 
   std::string username;
   std::string password;
@@ -32,18 +33,21 @@ Types::Scene Scenes::Login(std::string title) {
     }
     return element | borderEmpty;
   };
-  auto loginButton = Button("Login", [&] { screen.Exit(); }, buttonOption);
+  auto loginButton =
+      Button("Login", [&] { state.screen.Exit(); }, buttonOption);
   bool isRegisterButtonCalled = false;
   auto registerButton = Button(
       "Don't have a accont? - Register",
       [&] {
         isRegisterButtonCalled = true;
-        screen.Exit();
+        state.screen.Exit();
       },
       buttonOption);
 
   auto component = Container::Vertical(
       {usernameInput, passwordInput, loginButton, registerButton});
+
+  std::string title = "Login";
 
   auto renderer = Renderer(component, [&] {
     return center(vbox({
@@ -61,7 +65,7 @@ Types::Scene Scenes::Login(std::string title) {
   });
 
   while (1) {
-    screen.Loop(renderer);
+    state.screen.Loop(renderer);
 
     if (isRegisterButtonCalled) {
       return Types::Scene::Register;

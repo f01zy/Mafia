@@ -1,4 +1,4 @@
-#include "../Config/Config.h"
+#include "../Config/State.h"
 #include "../Network/Socket.h"
 #include "Scenes.h"
 #include "ftxui/component/component.hpp"
@@ -12,9 +12,8 @@ using json = nlohmann::json;
 Types::Scene Scenes::Room() {
   using namespace ftxui;
 
-  Config &config = Config::getInstance();
+  State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
-  auto screen = ScreenInteractive::Fullscreen();
 
   auto buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
@@ -28,30 +27,42 @@ Types::Scene Scenes::Room() {
     }
     return element | borderEmpty;
   };
-  auto startButton = Button("Start", [&] { screen.Exit(); }, buttonOption);
+  auto startButton =
+      Button("Start", [&] { state.screen.Exit(); }, buttonOption);
   auto disconnectButton = Button(
       "Disconnect",
       [&] {
         socket.emit("disconnectFromRoom");
-        screen.Exit();
+        state.screen.Exit();
       },
       buttonOption);
 
-  Types::User &user = config.getUser();
-  Types::Room &room = config.getRoom();
+  Types::User &user = state.getUser();
+  Types::Room &room = state.getRoom();
+  bool isOwner = user.username == room.owner;
 
-  auto component = Container::Vertical({disconnectButton});
+  Component component =
+      isOwner ? Container::Vertical({startButton, disconnectButton})
+              : Container::Vertical({disconnectButton});
+
+  auto renderButtons = [&] {
+    if (isOwner) {
+      return vbox({startButton->Render(), disconnectButton->Render()});
+    }
+    return disconnectButton->Render();
+  };
+
   auto renderer = Renderer(component, [&] {
     return center(vbox({
                       text(room.name) | bold,
                       text(std::to_string(room.players.size()) + "/" +
                            std::to_string(room.maxPlayers) + " players"),
                       separator(),
-                      disconnectButton->Render(),
+                      renderButtons(),
                   }) |
                   border | size(WIDTH, GREATER_THAN, 30));
   });
-  screen.Loop(renderer);
+  state.screen.Loop(renderer);
 
   return Types::Scene::Menu;
 }

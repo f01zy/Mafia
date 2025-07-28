@@ -1,5 +1,5 @@
 #pragma once
 
-namespace Utils::Core {
+namespace Utils {
 void sleep(double seconds);
 }
