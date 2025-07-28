@@ -57,14 +57,28 @@ Types::Scene Scenes::Rooms() {
   int selected = 0;
   Component dropdown = Dropdown(rooms, &selected);
 
-  auto component = Container::Vertical(
-      {dropdown, connectButton, createRoomButton, backButton});
+  bool isEmpty = rooms.size() == 0;
+  auto component = isEmpty
+                       ? Container::Vertical({createRoomButton, backButton})
+                       : Container::Vertical({dropdown, connectButton,
+                                              createRoomButton, backButton});
+
+  auto buttons = [&] {
+    return isEmpty ? vbox({createRoomButton->Render(), backButton->Render()})
+                   : vbox({connectButton->Render(), createRoomButton->Render(),
+                           backButton->Render()});
+  };
 
   auto renderer = Renderer(component, [&] {
-    return center(vbox({text("Rooms") | bold, separator(), dropdown->Render(),
-                        separator(), connectButton->Render(),
-                        createRoomButton->Render(), backButton->Render()}) |
-                  border | size(WIDTH, GREATER_THAN, 30));
+    return center(
+        vbox({
+            text("Rooms") | bold,
+            separator(),
+            isEmpty ? text("There are no rooms yet") : dropdown->Render(),
+            separator(),
+            buttons(),
+        }) |
+        border | size(WIDTH, GREATER_THAN, 30));
   });
   state.screen.Loop(renderer);
   state.rooms.clear();

@@ -43,16 +43,13 @@ Types::Scene Scenes::Room() {
   while (1) {
     state.isRoomUpdated = false;
     bool isOwner = user.username == room.owner;
-
     Component component =
         isOwner ? Container::Vertical({startButton, disconnectButton})
                 : Container::Vertical({disconnectButton});
 
-    auto renderButtons = [&] {
-      if (isOwner) {
-        return vbox({startButton->Render(), disconnectButton->Render()});
-      }
-      return disconnectButton->Render();
+    auto buttons = [&] {
+      return isOwner ? vbox({startButton->Render(), disconnectButton->Render()})
+                     : disconnectButton->Render();
     };
 
     auto renderer = Renderer(component, [&] {
@@ -61,7 +58,7 @@ Types::Scene Scenes::Room() {
                         text(std::to_string(room.players.size()) + "/" +
                              std::to_string(room.maxPlayers) + " players"),
                         separator(),
-                        renderButtons(),
+                        buttons(),
                     }) |
                     border | size(WIDTH, GREATER_THAN, 30));
     });
