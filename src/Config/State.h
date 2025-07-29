@@ -14,6 +14,7 @@ public:
     return config;
   };
 
+  std::string error;
   bool isLoading = false;
   bool isRoomUpdated = false;
   ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
@@ -21,13 +22,10 @@ public:
 
   Types::User &getUser() { return user; };
   Types::Room &getRoom() { return room; };
-  std::string &getError() { return error; };
   void setUser(Types::User &newUser) { user = newUser; };
   void setRoom(Types::Room &newRoom) { room = newRoom; };
-  void setError(std::string newError) { error = newError; };
 
 private:
   Types::User user;
   Types::Room room;
-  std::string error;
 };

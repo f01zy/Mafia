@@ -30,8 +30,16 @@ Types::Scene Scenes::Rooms() {
     }
     return element | borderEmpty;
   };
-  auto connectButton =
-      Button("Connect", [&] { state.screen.Exit(); }, buttonOption);
+
+  bool isConnectButtonCalled = false;
+  auto connectButton = Button(
+      "Connect",
+      [&] {
+        isConnectButtonCalled = true;
+        state.screen.Exit();
+      },
+      buttonOption);
+
   bool isCreateRoomButtonCalled = false;
   auto createRoomButton = Button(
       "Create room",
@@ -40,6 +48,7 @@ Types::Scene Scenes::Rooms() {
         state.screen.Exit();
       },
       buttonOption);
+
   bool isBackButtonCalled = false;
   auto backButton = Button(
       "Back",
@@ -69,10 +78,12 @@ Types::Scene Scenes::Rooms() {
                            backButton->Render()});
   };
 
+  std::string title = "Rooms";
+
   auto renderer = Renderer(component, [&] {
     return center(
         vbox({
-            text("Rooms") | bold,
+            text(title) | bold,
             separator(),
             isEmpty ? text("There are no rooms yet") : dropdown->Render(),
             separator(),
@@ -80,20 +91,35 @@ Types::Scene Scenes::Rooms() {
         }) |
         border | size(WIDTH, GREATER_THAN, 30));
   });
-  state.screen.Loop(renderer);
-  state.rooms.clear();
 
-  if (isBackButtonCalled) {
-    return Types::Scene::Menu;
-  }
+  while (1) {
+    state.screen.Loop(renderer);
 
-  if (isCreateRoomButtonCalled) {
-    return Types::Scene::CreateRoom;
-  }
+    if (isBackButtonCalled) {
+      state.rooms.clear();
+      return Types::Scene::Menu;
+    }
 
-  socket.emit("connectToRoom", rooms[selected]);
-  while (state.isLoading) {
-    Utils::sleep(0.5);
+    if (isCreateRoomButtonCalled) {
+      state.rooms.clear();
+      return Types::Scene::CreateRoom;
+    }
+
+    if (isConnectButtonCalled) {
+      socket.emit("connectToRoom", rooms[selected]);
+      while (state.isLoading) {
+        Utils::sleep(0.5);
+      }
+
+      if (!state.error.empty()) {
+        title = state.error;
+        state.error.clear();
+        continue;
+      }
+    }
+
+    state.rooms.clear();
+    break;
   }
 
   return Types::Scene::Room;

@@ -21,8 +21,8 @@ Types::Scene Scenes::CreateRoom() {
   inputOption.multiline = false;
   Component nameInput = Input(&name, "name", inputOption);
 
-  int maxPlayers = 10;
-  Component maxPlayersSlider = Slider("Players: ", &maxPlayers, 6, 16, 1);
+  int maxPlayers = 8;
+  Component maxPlayersSlider = Slider("Players: ", &maxPlayers, 1, 12, 1);
 
   auto buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
@@ -36,8 +36,10 @@ Types::Scene Scenes::CreateRoom() {
     }
     return element | borderEmpty;
   };
+
   auto createButton =
       Button("Create", [&] { state.screen.Exit(); }, buttonOption);
+
   bool isBackButtonCalled = false;
   auto backButton = Button(
       "Back",
@@ -77,11 +79,10 @@ Types::Scene Scenes::CreateRoom() {
 
     if (name.size() < 4 || name.size() > 20) {
       title = "Name lenght must be more than 4 and not exceed 20";
+      continue;
     }
 
-    else {
-      break;
-    }
+    break;
   }
 
   json data;

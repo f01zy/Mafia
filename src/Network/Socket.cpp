@@ -4,6 +4,13 @@
 #include "../Types/JsonSerializers.h"
 #include "../Utils/Json.h"
 
+void error(sio::event event) {
+  State &state = State::getInstance();
+  std::string data = event.get_message()->get_string();
+  state.error = data;
+  state.isLoading = false;
+}
+
 void updateRoom(sio::event event) {
   State &state = State::getInstance();
   json data = json::parse(event.get_message()->get_string());
@@ -32,6 +39,7 @@ Socket::Socket(std::string url) {
   on("receiveDisconnectFromRoom", receiveDisconnectFromRoom);
   on("updateRoom", updateRoom);
   on("receiveRooms", receiveRooms);
+  on("error", error);
 
   c.set_logs_quiet();
   c.connect(url);
