@@ -10,8 +10,8 @@ using json = nlohmann::json;
 class State final {
 public:
   static State &getInstance() {
-    static State config;
-    return config;
+    static State state;
+    return state;
   };
 
   std::string error;
@@ -19,6 +19,7 @@ public:
   bool isRoomUpdated = false;
   ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
   std::vector<Types::Room> rooms;
+  Types::Scene scene;
 
   Types::User &getUser() { return user; };
   Types::Room &getRoom() { return room; };

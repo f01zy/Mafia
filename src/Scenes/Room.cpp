@@ -1,3 +1,4 @@
+#include "../Config/Config.h"
 #include "../Config/State.h"
 #include "../Network/Socket.h"
 #include "Scenes.h"
@@ -13,7 +14,11 @@ Types::Scene Scenes::Room() {
   using namespace ftxui;
 
   State &state = State::getInstance();
+  Config &config = Config::getInstance();
   Socket &socket = Socket::getInstance();
+
+  Types::User &user = state.getUser();
+  Types::Room &room = state.getRoom();
 
   auto buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
@@ -27,47 +32,63 @@ Types::Scene Scenes::Room() {
     }
     return element | borderEmpty;
   };
-  auto startButton =
-      Button("Start", [&] { state.screen.Exit(); }, buttonOption);
-  auto disconnectButton = Button(
-      "Disconnect",
-      [&] {
-        socket.emit("disconnectFromRoom");
-        state.screen.Exit();
-      },
-      buttonOption);
-
-  Types::User &user = state.getUser();
-  Types::Room &room = state.getRoom();
 
   while (1) {
     state.isRoomUpdated = false;
+
     bool isOwner = user.username == room.owner;
-    Component component =
-        isOwner ? Container::Vertical({startButton, disconnectButton})
-                : Container::Vertical({disconnectButton});
+    bool hasMinimumPlayers = room.players.size() >= config.MIN_ROOM_PLAYERS;
 
-    auto buttons = [&] {
-      return isOwner ? vbox({startButton->Render(), disconnectButton->Render()})
-                     : disconnectButton->Render();
-    };
+    bool isShowStartButton = isOwner && hasMinimumPlayers;
+    bool isStartButtonCalled = false;
+    auto startButton = Maybe(Button(
+                                 "Start",
+                                 [&] {
+                                   isStartButtonCalled = true;
+                                   socket.emit("startGame");
+                                   state.screen.Exit();
+                                 },
+                                 buttonOption),
+                             &isShowStartButton);
 
-    auto renderer = Renderer(component, [&] {
-      return center(vbox({
-                        text(room.name) | bold,
-                        text(std::to_string(room.players.size()) + "/" +
-                             std::to_string(room.maxPlayers) + " players"),
-                        separator(),
-                        buttons(),
-                    }) |
-                    border | size(WIDTH, GREATER_THAN, 30));
+    bool isDisconnectButtonCalled = false;
+    auto disconnectButton = Button(
+        "Disconnect",
+        [&] {
+          isDisconnectButtonCalled = true;
+          socket.emit("disconnectFromRoom");
+          state.screen.Exit();
+        },
+        buttonOption);
+
+    Component container = Container::Vertical({startButton, disconnectButton});
+
+    auto renderer = Renderer(container, [&] {
+      std::string playersLabel = std::to_string(room.players.size()) + "/" +
+                                 std::to_string(room.maxPlayers) + " players";
+
+      Element content = vbox({
+          text(room.name) | bold,
+          text(playersLabel),
+          separator(),
+          startButton->Render(),
+          disconnectButton->Render(),
+      });
+
+      return center(content | border | size(WIDTH, GREATER_THAN, 40));
     });
     state.screen.Loop(renderer);
+
+    if (isDisconnectButtonCalled) {
+      return Types::Scene::Menu;
+    }
+
+    if (isStartButtonCalled) {
+      return Types::Scene::Game;
+    }
 
     if (!state.isRoomUpdated) {
       break;
     }
   }
-
-  return Types::Scene::Menu;
 }

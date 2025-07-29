@@ -11,9 +11,10 @@ public:
 
   static Socket &getInstance();
   void emit(std::string event, std::string data = "");
-  void on(std::string event, std::function<void(sio::event &)> callback);
   void auth();
 
 private:
+  void setupEvents();
+  void on(std::string event, std::function<void(sio::event &)> callback);
   sio::client c;
 };

@@ -4,43 +4,44 @@
 #include "../Types/JsonSerializers.h"
 #include "../Utils/Json.h"
 
+State &state = State::getInstance();
+Types::Room emptyRoom;
+
+void receiveStartGame(sio::event event) {
+  state.setRoom(emptyRoom);
+  state.screen.Exit();
+  state.scene = Types::Scene::Game;
+  state.isLoading = false;
+}
+
 void error(sio::event event) {
-  State &state = State::getInstance();
   std::string data = event.get_message()->get_string();
   state.error = data;
   state.isLoading = false;
 }
 
 void updateRoom(sio::event event) {
-  State &state = State::getInstance();
   json data = json::parse(event.get_message()->get_string());
   Types::Room room = Utils::Json::jsonToRoom(data);
   state.setRoom(room);
-  state.isLoading = false;
   state.isRoomUpdated = true;
   state.screen.Exit();
+  state.isLoading = false;
 }
 
 void receiveRooms(sio::event event) {
-  State &state = State::getInstance();
   json data = json::parse(event.get_message()->get_string());
   state.rooms = data["rooms"].get<std::vector<Types::Room>>();
   state.isLoading = false;
 }
 
 void receiveDisconnectFromRoom(sio::event event) {
-  State &state = State::getInstance();
-  Types::Room room;
-  state.setRoom(room);
+  state.setRoom(emptyRoom);
   state.isLoading = false;
 }
 
 Socket::Socket(std::string url) {
-  on("receiveDisconnectFromRoom", receiveDisconnectFromRoom);
-  on("updateRoom", updateRoom);
-  on("receiveRooms", receiveRooms);
-  on("error", error);
-
+  setupEvents();
   c.set_logs_quiet();
   c.connect(url);
 }
@@ -51,7 +52,6 @@ Socket::~Socket() {
 }
 
 void Socket::emit(std::string event, std::string data) {
-  State &state = State::getInstance();
   state.isLoading = true;
   c.socket()->emit(event, data);
 }
@@ -61,11 +61,17 @@ void Socket::on(std::string event, std::function<void(sio::event &)> callback) {
 }
 
 void Socket::auth() {
-  State &state = State::getInstance();
   Types::User user = state.getUser();
-  std::string username =
-      user.username.empty() ? "Not authenticated" : user.username;
-  emit("authenticate", username);
+  emit("authenticate", user.username);
+  state.isLoading = false;
+}
+
+void Socket::setupEvents() {
+  on("receiveDisconnectFromRoom", receiveDisconnectFromRoom);
+  on("updateRoom", updateRoom);
+  on("receiveRooms", receiveRooms);
+  on("error", error);
+  on("receiveStartGame", receiveStartGame);
 }
 
 Socket &Socket::getInstance() {

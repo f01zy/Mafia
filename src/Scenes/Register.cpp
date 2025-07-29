@@ -12,15 +12,19 @@ Types::Scene Scenes::Register() {
   State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
 
+  bool isLoginButtonCalled = false;
+  std::string title = "Register";
   std::string username;
   std::string email;
   std::string password;
   std::string confirmPassword;
 
   InputOption inputOption;
+
   inputOption.multiline = false;
   Component usernameInput = Input(&username, "Username", inputOption);
   Component emailInput = Input(&email, "Email", inputOption);
+
   inputOption.password = true;
   Component passwordInput = Input(&password, "Password", inputOption);
   Component confirmPasswordInput =
@@ -38,10 +42,11 @@ Types::Scene Scenes::Register() {
     }
     return element | borderEmpty;
   };
-  auto registerButton =
+
+  Component registerButton =
       Button("Register", [&] { state.screen.Exit(); }, buttonOption);
-  bool isLoginButtonCalled = false;
-  auto loginButton = Button(
+
+  Component loginButton = Button(
       "Already registered? - login",
       [&] {
         isLoginButtonCalled = true;
@@ -49,30 +54,24 @@ Types::Scene Scenes::Register() {
       },
       buttonOption);
 
-  auto component =
+  Component container =
       Container::Vertical({usernameInput, emailInput, passwordInput,
                            confirmPasswordInput, registerButton, loginButton});
 
-  std::string title = "Register";
+  auto renderer = Renderer(container, [&] {
+    Element content = vbox({
+        text(title) | bold,
+        separator(),
+        hbox(text("Username: "), usernameInput->Render()),
+        hbox(text("Email: "), emailInput->Render()),
+        hbox(text("Password: "), passwordInput->Render()),
+        hbox(text("Confirm password: "), confirmPasswordInput->Render()),
+        separator(),
+        registerButton->Render(),
+        loginButton->Render(),
+    });
 
-  auto renderer = Renderer(component, [&] {
-    return center(
-        vbox({
-            text(title) | bold,
-            separator(),
-            hbox(text("Username        : "),
-                 usernameInput->Render() | size(WIDTH, EQUAL, 30)),
-            hbox(text("Email           : "),
-                 emailInput->Render() | size(WIDTH, EQUAL, 30)),
-            hbox(text("Password        : "),
-                 passwordInput->Render() | size(WIDTH, EQUAL, 30)),
-            hbox(text("Confirm password: "),
-                 confirmPasswordInput->Render() | size(WIDTH, EQUAL, 30)),
-            separator(),
-            registerButton->Render(),
-            loginButton->Render(),
-        }) |
-        border);
+    return center(content | border | size(WIDTH, GREATER_THAN, 40));
   });
 
   while (1) {

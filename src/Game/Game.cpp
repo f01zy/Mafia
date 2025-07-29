@@ -1,14 +1,17 @@
 #include "Game.h"
+#include "../Config/State.h"
 #include "../Network/Socket.h"
 #include "../Scenes/Scenes.h"
 #include "../Utils/Auth.h"
 #include <unordered_map>
 
 void Game::run() {
-  bool isAuth = Utils::Auth::checkAuth();
-  Types::Scene scene = isAuth ? Types::Scene::Menu : Types::Scene::Login;
-
+  State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
+
+  bool isAuth = Utils::Auth::checkAuth();
+  state.scene = isAuth ? Types::Scene::Menu : Types::Scene::Login;
+
   if (isAuth) {
     socket.auth();
   }
@@ -18,14 +21,15 @@ void Game::run() {
       {Types::Scene::Rooms, []() { return Scenes::Rooms(); }},
       {Types::Scene::CreateRoom, []() { return Scenes::CreateRoom(); }},
       {Types::Scene::Room, []() { return Scenes::Room(); }},
+      {Types::Scene::Game, []() { return Scenes::Game(); }},
       {Types::Scene::Login, []() { return Scenes::Login(); }},
       {Types::Scene::Register, []() { return Scenes::Register(); }},
   };
 
-  while (scene != Types::Scene::Exit) {
-    auto it = scenes.find(scene);
+  while (state.scene != Types::Scene::Exit) {
+    auto it = scenes.find(state.scene);
     if (it != scenes.end()) {
-      scene = it->second();
+      state.scene = it->second();
     } else {
       break;
     }

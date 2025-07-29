@@ -3,7 +3,9 @@
 #include "../Utils/Utils.h"
 #include "Scenes.h"
 #include "ftxui/component/component.hpp"
+#include <ftxui/component/component_options.hpp>
 #include <ftxui/component/screen_interactive.hpp>
+#include <ftxui/dom/deprecated.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <string>
 
@@ -14,11 +16,21 @@ Types::Scene Scenes::Rooms() {
   Socket &socket = Socket::getInstance();
 
   socket.emit("getRooms");
-  while (state.isLoading) {
-    Utils::sleep(0.5);
-  }
+  Utils::loading();
 
-  auto buttonOption = ButtonOption::Simple();
+  std::string title = "Rooms";
+  bool isConnectButtonCalled = false;
+  bool isCreateRoomButtonCalled = false;
+  bool isBackButtonCalled = false;
+  int selectedRoom = 0;
+
+  std::vector<std::string> rooms;
+  for (Types::Room room : state.rooms) {
+    rooms.push_back(room.name);
+  }
+  bool hasRooms = rooms.size() > 0;
+
+  ButtonOption buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
     Element element = text(s.label);
     if (s.focused) {
@@ -31,8 +43,7 @@ Types::Scene Scenes::Rooms() {
     return element | borderEmpty;
   };
 
-  bool isConnectButtonCalled = false;
-  auto connectButton = Button(
+  Component connectButton = Button(
       "Connect",
       [&] {
         isConnectButtonCalled = true;
@@ -40,8 +51,7 @@ Types::Scene Scenes::Rooms() {
       },
       buttonOption);
 
-  bool isCreateRoomButtonCalled = false;
-  auto createRoomButton = Button(
+  Component createRoomButton = Button(
       "Create room",
       [&] {
         isCreateRoomButtonCalled = true;
@@ -49,8 +59,7 @@ Types::Scene Scenes::Rooms() {
       },
       buttonOption);
 
-  bool isBackButtonCalled = false;
-  auto backButton = Button(
+  Component backButton = Button(
       "Back",
       [&] {
         isBackButtonCalled = true;
@@ -58,38 +67,38 @@ Types::Scene Scenes::Rooms() {
       },
       buttonOption);
 
-  std::vector<std::string> rooms;
-  for (Types::Room room : state.rooms) {
-    rooms.push_back(room.name);
-  }
+  Component roomsDropdown = Dropdown(rooms, &selectedRoom);
 
-  int selected = 0;
-  Component dropdown = Dropdown(rooms, &selected);
+  Component container =
+      !hasRooms ? Container::Vertical({createRoomButton, backButton})
+                : Container::Vertical({roomsDropdown, connectButton,
+                                       createRoomButton, backButton});
 
-  bool isEmpty = rooms.size() == 0;
-  auto component = isEmpty
-                       ? Container::Vertical({createRoomButton, backButton})
-                       : Container::Vertical({dropdown, connectButton,
-                                              createRoomButton, backButton});
+  Component renderer = Renderer(container, [&] {
+    Element content;
 
-  auto buttons = [&] {
-    return isEmpty ? vbox({createRoomButton->Render(), backButton->Render()})
-                   : vbox({connectButton->Render(), createRoomButton->Render(),
-                           backButton->Render()});
-  };
+    if (hasRooms) {
+      content = vbox({
+          text(title) | bold,
+          separator(),
+          roomsDropdown->Render(),
+          separator(),
+          connectButton->Render(),
+          createRoomButton->Render(),
+          backButton->Render(),
+      });
+    }
 
-  std::string title = "Rooms";
+    else {
+      content = vbox({
+          text("No rooms available") | bold,
+          separator(),
+          createRoomButton->Render(),
+          backButton->Render(),
+      });
+    }
 
-  auto renderer = Renderer(component, [&] {
-    return center(
-        vbox({
-            text(title) | bold,
-            separator(),
-            isEmpty ? text("There are no rooms yet") : dropdown->Render(),
-            separator(),
-            buttons(),
-        }) |
-        border | size(WIDTH, GREATER_THAN, 30));
+    return center(content | border | size(WIDTH, GREATER_THAN, 40));
   });
 
   while (1) {
@@ -106,21 +115,19 @@ Types::Scene Scenes::Rooms() {
     }
 
     if (isConnectButtonCalled) {
-      socket.emit("connectToRoom", rooms[selected]);
-      while (state.isLoading) {
-        Utils::sleep(0.5);
-      }
+      socket.emit("connectToRoom", rooms[selectedRoom]);
+      Utils::loading();
 
       if (!state.error.empty()) {
         title = state.error;
         state.error.clear();
         continue;
       }
+
+      state.rooms.clear();
+      return Types::Scene::Room;
     }
 
-    state.rooms.clear();
     break;
   }
-
-  return Types::Scene::Room;
 }

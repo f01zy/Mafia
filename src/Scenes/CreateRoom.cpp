@@ -1,3 +1,4 @@
+#include "../Config/Config.h"
 #include "../Config/State.h"
 #include "../Network/Socket.h"
 #include "../Utils/Utils.h"
@@ -13,18 +14,24 @@ using json = nlohmann::json;
 Types::Scene Scenes::CreateRoom() {
   using namespace ftxui;
 
+  Config &config = Config::getInstance();
   State &state = State::getInstance();
   Socket &socket = Socket::getInstance();
 
+  int maxPlayers = config.MIN_ROOM_PLAYERS;
+  bool isBackButtonCalled = false;
+  std::string title = "Create room";
   std::string name;
+
   InputOption inputOption;
   inputOption.multiline = false;
   Component nameInput = Input(&name, "name", inputOption);
 
-  int maxPlayers = 8;
-  Component maxPlayersSlider = Slider("Players: ", &maxPlayers, 1, 12, 1);
+  Component maxPlayersSlider =
+      Slider("Players: ", &maxPlayers, config.MIN_ROOM_PLAYERS,
+             config.MAX_ROOM_PLAYERS, 1);
 
-  auto buttonOption = ButtonOption::Simple();
+  ButtonOption buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
     Element element = text(s.label);
     if (s.focused) {
@@ -40,7 +47,6 @@ Types::Scene Scenes::CreateRoom() {
   auto createButton =
       Button("Create", [&] { state.screen.Exit(); }, buttonOption);
 
-  bool isBackButtonCalled = false;
   auto backButton = Button(
       "Back",
       [&] {
@@ -49,25 +55,22 @@ Types::Scene Scenes::CreateRoom() {
       },
       buttonOption);
 
-  auto component = Container::Vertical(
+  auto container = Container::Vertical(
       {nameInput, maxPlayersSlider, createButton, backButton});
 
-  std::string title = "Create room";
+  auto renderer = Renderer(container, [&] {
+    Element content = vbox({
+        text(title) | bold,
+        separator(),
+        hbox(text("Name: "), nameInput->Render() | size(WIDTH, EQUAL, 30)),
+        hbox(maxPlayersSlider->Render(), filler() | size(WIDTH, EQUAL, 1),
+             text(std::to_string(maxPlayers))),
+        separator(),
+        createButton->Render(),
+        backButton->Render(),
+    });
 
-  auto renderer = Renderer(component, [&] {
-    return center(
-        vbox({
-            text(title) | bold,
-            separator(),
-            hbox(text("Name   : "),
-                 nameInput->Render() | size(WIDTH, EQUAL, 30)),
-            hbox(maxPlayersSlider->Render(), filler() | size(WIDTH, EQUAL, 1),
-                 text(std::to_string(maxPlayers))),
-            separator(),
-            createButton->Render(),
-            backButton->Render(),
-        }) |
-        border);
+    return center(content | border | size(WIDTH, GREATER_THAN, 40));
   });
 
   while (1) {
@@ -78,7 +81,7 @@ Types::Scene Scenes::CreateRoom() {
     }
 
     if (name.size() < 4 || name.size() > 20) {
-      title = "Name lenght must be more than 4 and not exceed 20";
+      title = "Name too short or long";
       continue;
     }
 
@@ -90,9 +93,7 @@ Types::Scene Scenes::CreateRoom() {
   data["maxPlayers"] = maxPlayers;
 
   socket.emit("createRoom", data.dump());
-  while (state.isLoading) {
-    Utils::sleep(0.5);
-  }
+  Utils::loading();
 
   return Types::Scene::Room;
 }

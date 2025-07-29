@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace Types {
-enum class Scene { Menu, Rooms, CreateRoom, Room, Login, Register, Exit };
+enum class Scene { Menu, Rooms, CreateRoom, Room, Game, Login, Register, Exit };
 
 struct Room {
   std::string owner;
