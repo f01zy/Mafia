@@ -14,15 +14,20 @@ int UI::Menu::draw() {
   auto component = CatchEvent(menu, [&](Event event) {
     if (event == Event::Return) {
       screen.Exit();
-      return 1;
+      return true;
     }
 
-    return 0;
+    return false;
   });
 
   auto renderer = Renderer(component, [&] {
-    return center(vbox(text(title) | bold, separator(), component->Render()) |
-                  border | size(WIDTH, GREATER_THAN, 30));
+    Element content = vbox({
+        text(title) | bold,
+        separator(),
+        component->Render(),
+    });
+
+    return center(content | border | size(WIDTH, GREATER_THAN, 40));
   });
   screen.Loop(renderer);
 

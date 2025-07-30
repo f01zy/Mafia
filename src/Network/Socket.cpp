@@ -10,7 +10,6 @@ Types::Room emptyRoom;
 void receiveStartGame(sio::event event) {
   state.setRoom(emptyRoom);
   state.screen.Exit();
-  state.scene = Types::Scene::Game;
   state.isLoading = false;
 }
 

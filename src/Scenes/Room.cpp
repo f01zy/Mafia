@@ -40,11 +40,9 @@ Types::Scene Scenes::Room() {
     bool hasMinimumPlayers = room.players.size() >= config.MIN_ROOM_PLAYERS;
 
     bool isShowStartButton = isOwner && hasMinimumPlayers;
-    bool isStartButtonCalled = false;
     auto startButton = Maybe(Button(
                                  "Start",
                                  [&] {
-                                   isStartButtonCalled = true;
                                    socket.emit("startGame");
                                    state.screen.Exit();
                                  },
@@ -83,12 +81,10 @@ Types::Scene Scenes::Room() {
       return Types::Scene::Menu;
     }
 
-    if (isStartButtonCalled) {
-      return Types::Scene::Game;
-    }
-
     if (!state.isRoomUpdated) {
       break;
     }
   }
+
+  return Types::Scene::Game;
 }

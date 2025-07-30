@@ -10,7 +10,7 @@ void Game::run() {
   Socket &socket = Socket::getInstance();
 
   bool isAuth = Utils::Auth::checkAuth();
-  state.scene = isAuth ? Types::Scene::Menu : Types::Scene::Login;
+  state.scene = isAuth ? Types::Scene::Game : Types::Scene::Login;
 
   if (isAuth) {
     socket.auth();
