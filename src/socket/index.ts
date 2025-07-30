@@ -27,16 +27,14 @@ export const loadIoListeners = (io: Server) => {
         rooms.splice(i, 1)
         logger.info(`The room ${currentRoom} removed`)
       }
-
       else {
         if (room.owner == username) {
           room.owner = room.players[0]
         }
         io.to(currentRoom).emit("updateRoom", JSON.stringify(room))
       }
-
-      logger.info(`${username} disconnected from ${currentRoom}`)
       socket.emit("receiveDisconnectFromRoom")
+      logger.info(`${username} disconnected from ${currentRoom}`)
     }
   }
 
@@ -63,9 +61,9 @@ export const loadIoListeners = (io: Server) => {
       rooms.push(room)
       socket.join(data.name)
       socket.data.currentRoom = data.name
+      socket.emit("updateRoom", JSON.stringify(room))
 
       logger.info(`The room ${room.name} created`)
-      socket.emit("updateRoom", JSON.stringify(room))
     })
 
     socket.on("disconnectFromRoom", () => {
@@ -85,14 +83,15 @@ export const loadIoListeners = (io: Server) => {
       }
       room.players.push(username)
 
-      logger.info(`${username} connected to ${name}`)
       socket.data.currentRoom = name
       socket.join(name)
       io.to(name).emit("updateRoom", JSON.stringify(room))
+
+      logger.info(`${username} connected to ${name}`)
     })
 
     socket.on("startGame", () => {
-      const currentRoom = socket.data.room
+      const currentRoom = socket.data.currentRoom
 
       const i = rooms.findIndex(r => r.name == currentRoom)
       if (i != -1) {
@@ -100,6 +99,7 @@ export const loadIoListeners = (io: Server) => {
       }
 
       io.to(currentRoom).emit("receiveStartGame")
+      logger.info(`Game ${currentRoom} started`)
     })
 
     socket.on("disconnect", () => {
