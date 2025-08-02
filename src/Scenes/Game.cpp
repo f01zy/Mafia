@@ -13,6 +13,11 @@ Types::Scene Scenes::Game() {
 
   std::string message;
   const Types::Room &room = state.getRoom();
+  const Types::User &user = state.getUser();
+  int tabSelected = 0;
+
+  std::vector<std::string> tabValues = {"Chat", "Players", "Voting"};
+  Component tabToggle = ftxui::Toggle(&tabValues, &tabSelected);
 
   InputOption inputOption;
   inputOption.multiline = false;
@@ -50,20 +55,17 @@ Types::Scene Scenes::Game() {
       },
       buttonOption);
 
-  Component container =
+  Component chatContainer =
       Container::Vertical({messageInput, sendMessageButton, disconnectButton});
-  Component renderer = Renderer(container, [&] {
+  Component chatRenderer = Renderer(chatContainer, [&] {
     std::vector<Element> messages;
 
     for (const Types::Message &message : room.messages) {
       messages.push_back(text(message.username + ": " + message.content));
     }
 
-    std::string title = room.name + ", " + std::to_string(room.players.size()) +
-                        "/" + std::to_string(room.maxPlayers) + " players";
-
     Element content = vbox({
-        text(title),
+        text(room.name),
         separator(),
         vbox(messages) | yframe | flex,
         separator(),
@@ -71,6 +73,51 @@ Types::Scene Scenes::Game() {
         separator(),
         sendMessageButton->Render(),
         disconnectButton->Render(),
+    });
+
+    return content;
+  });
+
+  Component playersContainer = Container::Vertical({});
+  Component playersRenderer = Renderer(playersContainer, [&] {
+    std::vector<Element> players;
+
+    for (const Types::Player &player : room.players) {
+      std::string label = player.username;
+
+      if (player.username == user.username) {
+        label = player.username + ": " + player.role;
+      }
+
+      players.push_back(text(label));
+    }
+
+    Element content = vbox({
+        text("Players"),
+        separator(),
+        vbox(players) | yframe | flex,
+    });
+
+    return content;
+  });
+
+  Component votingContainer = Container::Vertical({});
+  Component votingRenderer = Renderer(votingContainer, [&] {
+    Element content = vbox({
+        text("Voting"),
+    });
+
+    return content;
+  });
+
+  Component tabContainer = Container::Tab(
+      {chatRenderer, playersRenderer, votingRenderer}, &tabSelected);
+  Component container = Container::Vertical({tabToggle, tabContainer});
+  Component renderer = Renderer(container, [&] {
+    Element content = vbox({
+        tabToggle->Render(),
+        separator(),
+        tabContainer->Render() | flex,
     });
 
     return content | flex | border;
