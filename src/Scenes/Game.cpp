@@ -56,7 +56,7 @@ Types::Scene Scenes::Game() {
     std::vector<Element> messages;
 
     for (const Types::Message &message : room.messages) {
-      messages.push_back(text(message.username + ": " + message.message));
+      messages.push_back(text(message.username + ": " + message.content));
     }
 
     std::string title = room.name + ", " + std::to_string(room.players.size()) +

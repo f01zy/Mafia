@@ -7,11 +7,6 @@
 State &state = State::getInstance();
 Types::Room emptyRoom;
 
-void receiveStartGame(sio::event event) {
-  state.screen.Exit();
-  state.isLoading = false;
-}
-
 void error(sio::event event) {
   std::string data = event.get_message()->get_string();
   state.error = data;
@@ -69,7 +64,6 @@ void Socket::setupEvents() {
   on("updateRoom", updateRoom);
   on("receiveRooms", receiveRooms);
   on("error", error);
-  on("receiveStartGame", receiveStartGame);
 }
 
 Socket &Socket::getInstance() {

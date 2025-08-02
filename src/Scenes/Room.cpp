@@ -34,8 +34,6 @@ Types::Scene Scenes::Room() {
   };
 
   while (1) {
-    state.isRoomUpdated = false;
-
     bool isOwner = user.username == room.owner;
     bool hasMinimumPlayers = room.players.size() >= config.MIN_ROOM_PLAYERS;
 
@@ -81,7 +79,8 @@ Types::Scene Scenes::Room() {
       return Types::Scene::Menu;
     }
 
-    if (!state.isRoomUpdated) {
+    if (!state.isRoomUpdated || room.state != "not started") {
+      state.isRoomUpdated = false;
       break;
     }
   }
