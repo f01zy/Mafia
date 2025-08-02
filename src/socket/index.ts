@@ -1,6 +1,5 @@
 import type { Server, Socket } from "socket.io";
 import { logger } from "../utils/logger.utils";
-import { random } from "../utils/random.utils";
 
 type Role = "mafia" | "don" | "doctor" | "sheriff" | "civilian"
 
@@ -47,6 +46,11 @@ export const loadIoListeners = (io: Server) => {
     }
 
     else {
+      room.messages.push({
+        username: "System",
+        content: `The user \"${username}\" disconnected`
+      })
+
       if (room.owner == username) {
         room.owner = room.players[0].username
       }
