@@ -6,6 +6,8 @@ Types::Room Utils::Json::jsonToRoom(json data) {
   room.name = data["name"];
   room.maxPlayers = data["maxPlayers"];
   room.players = data["players"].get<std::vector<std::string>>();
+  room.messages = data["messages"].get<std::vector<Types::Message>>();
+  room.state = data["state"];
   return room;
 }
 

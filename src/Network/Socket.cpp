@@ -8,7 +8,6 @@ State &state = State::getInstance();
 Types::Room emptyRoom;
 
 void receiveStartGame(sio::event event) {
-  state.setRoom(emptyRoom);
   state.screen.Exit();
   state.isLoading = false;
 }

@@ -21,8 +21,8 @@ public:
   std::vector<Types::Room> rooms;
   Types::Scene scene;
 
-  Types::User &getUser() { return user; };
-  Types::Room &getRoom() { return room; };
+  const Types::User &getUser() { return user; };
+  const Types::Room &getRoom() { return room; };
   void setUser(Types::User &newUser) { user = newUser; };
   void setRoom(Types::Room &newRoom) { room = newRoom; };
 

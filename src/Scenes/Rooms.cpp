@@ -128,4 +128,6 @@ Types::Scene Scenes::Rooms() {
 
     break;
   }
+
+  return Types::Scene::Menu;
 }

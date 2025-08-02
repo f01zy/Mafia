@@ -1,3 +1,6 @@
+#pragma once
+
+#include "../Types/JsonSerializers.h"
 #include "../Types/Types.h"
 #include <nlohmann/json.hpp>
 

@@ -17,8 +17,8 @@ Types::Scene Scenes::Room() {
   Config &config = Config::getInstance();
   Socket &socket = Socket::getInstance();
 
-  Types::User &user = state.getUser();
-  Types::Room &room = state.getRoom();
+  const Types::User &user = state.getUser();
+  const Types::Room &room = state.getRoom();
 
   auto buttonOption = ButtonOption::Simple();
   buttonOption.transform = [](const EntryState &s) {
